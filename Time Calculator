@@ -1,0 +1,62 @@
+def add_time(start, duration, day_of_week=None):
+    def get_day_index(day):
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        return days.index(day.capitalize())
+
+    def get_day_from_index(index):
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        return days[index % 7]
+
+    start_parts = start.split()
+    time_parts = start_parts[0].split(":")
+    start_hour = int(time_parts[0])
+    start_minute = int(time_parts[1])
+    meridian = start_parts[1]
+
+    if meridian == "PM" and start_hour != 12:
+        start_hour += 12
+    elif meridian == "AM" and start_hour == 12:
+        start_hour = 0
+
+    duration_parts = duration.split(":")
+    duration_hours = int(duration_parts[0])
+    duration_minutes = int(duration_parts[1])
+
+    total_minutes = start_minute + duration_minutes
+    extra_hours = total_minutes // 60
+    new_minute = total_minutes % 60
+
+    total_hours = start_hour + duration_hours + extra_hours
+    new_hour = total_hours % 24
+
+    days_later = total_hours // 24
+
+    if new_hour >= 12:
+        meridian = "PM"
+        if new_hour > 12:
+            new_hour -= 12
+    else:
+        meridian = "AM"
+        if new_hour == 0:
+            new_hour = 12
+
+    new_time = f"{new_hour}:{new_minute:02d} {meridian}"
+
+    if day_of_week:
+        day_index = get_day_index(day_of_week)
+        new_day = get_day_from_index(day_index + days_later)
+        new_time += f", {new_day}"
+
+    if days_later == 1:
+        new_time += " (next day)"
+    elif days_later > 1:
+        new_time += f" ({days_later} days later)"
+
+    return new_time
+
+print(add_time('3:00 PM', '3:10'))
+print(add_time('11:30 AM', '2:32', 'Monday'))
+print(add_time('11:43 AM', '00:20'))
+print(add_time('10:10 PM', '3:30'))
+print(add_time('11:43 PM', '24:20', 'tueSday'))
+print(add_time('6:30 PM', '205:12'))
